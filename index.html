@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Len-Den - Secure Ledger</title>
+    <title>Len-Den - Final Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .hidden { display: none !important; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #6366f1; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="pb-24">
@@ -20,14 +24,14 @@
     <div id="login-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center p-6 text-center">
         <div class="glass-card w-full max-w-md rounded-[32px] p-8 border-indigo-500/30 border shadow-2xl">
             <h1 class="text-4xl font-black text-indigo-400 mb-2 tracking-tighter">Len-Den</h1>
-            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold">Secure Ledger Access</p>
+            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold">Secure Digital Khata</p>
             
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500">
+                <input type="email" id="login-email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500">
-                <button onclick="handleLogin()" class="w-full bg-indigo-600 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all">Dakhil Hon</button>
+                <button onclick="handleLogin()" id="login-btn" class="w-full bg-indigo-600 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all">Dakhil Hon</button>
                 
-                <div class="flex items-center my-4"><hr class="flex-grow border-slate-700"><span class="px-3 text-gray-500 text-[10px] font-bold">YA PHIR</span><hr class="flex-grow border-slate-700"></div>
+                <div class="flex items-center my-4"><hr class="flex-grow border-slate-700"><span class="px-3 text-gray-500 text-[10px] font-bold">YA</span><hr class="flex-grow border-slate-700"></div>
 
                 <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-900 py-3 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20">
@@ -40,59 +44,44 @@
 
     <div id="main-app" class="hidden">
         <header class="p-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-black tracking-tighter text-indigo-400">Len-Den</h1>
-                <p id="user-display" class="text-gray-400 text-[9px] uppercase tracking-widest font-bold">Cloud Sync On</p>
-            </div>
-            <button onclick="handleLogout()" class="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center border border-white/10 text-red-400"><i class="fa fa-sign-out-alt"></i></button>
+            <h1 class="text-3xl font-black text-indigo-400">Len-Den</h1>
+            <button onclick="auth.signOut()" class="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center text-red-400"><i class="fa fa-sign-out-alt"></i></button>
         </header>
 
         <main class="px-6">
-            <div class="glass-card rounded-3xl p-6 mb-8 text-center relative overflow-hidden">
-                <p class="text-gray-400 text-sm mb-1 uppercase tracking-tighter">Kul Net Balance</p>
-                <h2 id="grand-total" class="text-4xl font-extrabold mb-6 text-white font-mono tracking-tighter">Rs. 0</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-green-500/10 p-3 rounded-2xl border border-green-500/20 text-green-400">
-                        <p class="text-[10px] uppercase font-bold">Lena Hai</p>
-                        <p id="total-plus" class="text-lg font-bold">Rs. 0</p>
-                    </div>
-                    <div class="bg-red-500/10 p-3 rounded-2xl border border-red-500/20 text-red-400">
-                        <p class="text-[10px] uppercase font-bold">Dena Hai</p>
-                        <p id="total-minus" class="text-lg font-bold">Rs. 0</p>
-                    </div>
-                </div>
+            <div class="glass-card rounded-3xl p-6 mb-8 text-center">
+                <p class="text-gray-400 text-sm">Net Balance</p>
+                <h2 id="grand-total" class="text-4xl font-extrabold text-white font-mono">Rs. 0</h2>
             </div>
-            <div id="contacts-list" class="space-y-4"></div>
+            <div id="contacts-list" class="space-y-4">
+                </div>
         </main>
 
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/90 backdrop-blur-md flex justify-around items-center rounded-t-[32px] z-40">
-            <button class="text-indigo-400 flex flex-col items-center gap-1"><i class="fa fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
-            <div class="relative -top-8">
-                <button onclick="openModal()" class="bg-indigo-600 h-14 w-14 rounded-full shadow-2xl border-4 border-[#0f172a] flex items-center justify-center"><i class="fa fa-plus text-white text-xl"></i></button>
-            </div>
-            <button class="text-gray-500 flex flex-col items-center gap-1"><i class="fa fa-cog text-xl"></i><span class="text-[10px] font-bold">Settings</span></button>
-        </div>
+        <button onclick="openModal()" class="fixed bottom-24 right-6 bg-indigo-600 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all z-50">
+            <i class="fa fa-plus text-white text-xl"></i>
+        </button>
     </div>
 
-    <div id="transaction-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+    <div id="transaction-modal" class="hidden fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
         <div class="glass-card w-full max-w-md rounded-[32px] p-8 border border-indigo-500/30">
-            <h3 id="modal-title" class="text-xl font-bold mb-6 text-indigo-400">Naya Hisab</h3>
+            <h3 class="text-xl font-bold mb-6 text-indigo-400">Naya Hisab</h3>
             <div class="space-y-4">
-                <input type="text" id="person-name" placeholder="Naam" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
-                <input type="number" id="amount-input" placeholder="Amount" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
-                <input type="text" id="desc-input" placeholder="Tafseel" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
+                <input type="text" id="person-name" placeholder="Naam" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 outline-none">
+                <input type="number" id="amount-input" placeholder="Raqam" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 outline-none">
+                <input type="text" id="desc-input" placeholder="Tafseel" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 outline-none">
             </div>
             <div class="grid grid-cols-2 gap-4 mt-8">
-                <button onclick="saveEntry('dena')" class="bg-red-500 py-3 rounded-xl font-bold text-white shadow-lg">Maine Diye</button>
-                <button onclick="saveEntry('lena')" class="bg-green-500 py-3 rounded-xl font-bold text-white shadow-lg">Maine Liye</button>
+                <button onclick="saveEntry('dena')" class="bg-red-500 py-3 rounded-xl font-bold text-white">Maine Diye</button>
+                <button onclick="saveEntry('lena')" class="bg-green-500 py-3 rounded-xl font-bold text-white">Maine Liye</button>
             </div>
             <button onclick="closeModal()" class="w-full mt-4 text-gray-500 text-xs font-bold uppercase">Cancel</button>
         </div>
     </div>
 
     <script>
+        // --- APNI ASAL CONFIG DOBARA CHECK KAREIN ---
         const firebaseConfig = {
-            apiKey: "AIzaSyC-Q4H7_UvN5X9K_V9Y0Z6H-R1Z_G1X",
+            apiKey: "AIzaSyC-Q4H7_UvN5X9K_V9Y0Z6H-R1Z_G1X", 
             authDomain: "len-den-5232b.firebaseapp.com",
             databaseURL: "https://len-den-5232b-default-rtdb.firebaseio.com",
             projectId: "len-den-5232b",
@@ -104,19 +93,22 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        let editKey = null;
 
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).catch(err => {
-                showError("Google login error: " + err.message);
+                showError("Google Error: " + err.message);
             });
         }
 
         function handleLogin() {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
-            auth.signInWithEmailAndPassword(email, pass).catch(err => showError("Ghalat Email ya Password!"));
+            if(!email || !pass) return;
+            
+            auth.signInWithEmailAndPassword(email, pass).catch(err => {
+                showError("Email ya Password ghalat hai!");
+            });
         }
 
         function showError(msg) {
@@ -125,13 +117,10 @@
             el.classList.remove('hidden');
         }
 
-        function handleLogout() { auth.signOut(); }
-
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('user-display').innerText = user.email;
                 loadData(user.uid);
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -139,11 +128,7 @@
             }
         });
 
-        function openModal(key = null) {
-            editKey = key;
-            document.getElementById('transaction-modal').classList.remove('hidden');
-        }
-
+        function openModal() { document.getElementById('transaction-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('transaction-modal').classList.add('hidden'); }
 
         function saveEntry(type) {
@@ -151,29 +136,28 @@
             const amount = parseFloat(document.getElementById('amount-input').value);
             const desc = document.getElementById('desc-input').value.trim();
             if (!name || isNaN(amount)) return;
+            
             const finalAmount = (type === 'dena') ? amount : -amount;
-            db.ref(`users/${auth.currentUser.uid}/khata`).push({ name, balance: finalAmount, desc, timestamp: Date.now() });
-            closeModal();
+            db.ref(`users/${auth.currentUser.uid}/khata`).push({
+                name, balance: finalAmount, desc, timestamp: Date.now()
+            }).then(() => closeModal());
         }
 
         function loadData(uid) {
             db.ref(`users/${uid}/khata`).on('value', snapshot => {
                 const list = document.getElementById('contacts-list');
                 list.innerHTML = '';
-                let totalL = 0, totalD = 0;
+                let total = 0;
                 snapshot.forEach(child => {
                     const p = child.val();
-                    const isPos = p.balance >= 0;
-                    if (isPos) totalL += p.balance; else totalD += Math.abs(p.balance);
+                    total += p.balance;
                     list.innerHTML += `
-                        <div class="glass-card p-4 rounded-2xl flex justify-between items-center border border-white/5">
-                            <div><h4 class="font-bold text-sm text-white">${p.name}</h4><p class="text-[9px] text-gray-500 italic">${p.desc || ''}</p></div>
-                            <p class="font-bold ${isPos ? 'text-green-400' : 'text-red-400'}">Rs. ${Math.abs(p.balance).toLocaleString()}</p>
+                        <div class="glass-card p-4 rounded-2xl flex justify-between items-center">
+                            <div><h4 class="font-bold">${p.name}</h4><p class="text-[10px] text-gray-500">${p.desc || ''}</p></div>
+                            <p class="font-bold ${p.balance >= 0 ? 'text-green-400' : 'text-red-400'}">Rs. ${Math.abs(p.balance)}</p>
                         </div>`;
                 });
-                document.getElementById('grand-total').innerText = `Rs. ${totalL - totalD}`;
-                document.getElementById('total-plus').innerText = `Rs. ${totalL}`;
-                document.getElementById('total-minus').innerText = `Rs. ${totalD}`;
+                document.getElementById('grand-total').innerText = `Rs. ${total}`;
             });
         }
     </script>
