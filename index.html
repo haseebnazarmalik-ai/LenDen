@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Len-Den - Secure Digital Ledger</title>
+    <title>Len-Den - Secure Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .bottom-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); }
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-24">
 
     <div id="login-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center p-6 text-center">
         <div class="glass-card w-full max-w-md rounded-[32px] p-8 border-indigo-500/30 border shadow-2xl">
@@ -27,22 +23,18 @@
             <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold">Secure Ledger Access</p>
             
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500 text-sm">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500 text-sm">
-                <button onclick="handleLogin()" class="w-full bg-slate-800 py-3 rounded-2xl font-bold text-sm border border-slate-700 hover:bg-slate-700 transition-all">Dakhil Hon</button>
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-3 px-5 text-white outline-none focus:border-indigo-500">
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all">Dakhil Hon</button>
                 
-                <div class="flex items-center my-4">
-                    <hr class="flex-grow border-slate-700">
-                    <span class="px-3 text-gray-500 text-[10px] font-bold">YA PHIR</span>
-                    <hr class="flex-grow border-slate-700">
-                </div>
+                <div class="flex items-center my-4"><hr class="flex-grow border-slate-700"><span class="px-3 text-gray-500 text-[10px] font-bold">YA PHIR</span><hr class="flex-grow border-slate-700"></div>
 
-                <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="24">
+                <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-900 py-3 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20">
                     Google ke sath Login
                 </button>
             </div>
-            <p id="login-error" class="text-red-400 text-[11px] mt-4 hidden font-bold">Login fail ho gaya! Check console.</p>
+            <p id="login-error" class="text-red-400 text-[11px] mt-4 hidden font-bold"></p>
         </div>
     </div>
 
@@ -57,7 +49,7 @@
 
         <main class="px-6">
             <div class="glass-card rounded-3xl p-6 mb-8 text-center relative overflow-hidden">
-                <p class="text-gray-400 text-sm mb-1">Kul Net Balance</p>
+                <p class="text-gray-400 text-sm mb-1 uppercase tracking-tighter">Kul Net Balance</p>
                 <h2 id="grand-total" class="text-4xl font-extrabold mb-6 text-white font-mono tracking-tighter">Rs. 0</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-green-500/10 p-3 rounded-2xl border border-green-500/20 text-green-400">
@@ -73,28 +65,28 @@
             <div id="contacts-list" class="space-y-4"></div>
         </main>
 
-        <div class="fixed bottom-0 left-0 right-0 p-4 bottom-nav flex justify-around items-center rounded-t-[32px] z-40">
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/90 backdrop-blur-md flex justify-around items-center rounded-t-[32px] z-40">
             <button class="text-indigo-400 flex flex-col items-center gap-1"><i class="fa fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
-            <div class="relative -top-10">
-                <button onclick="openModal()" class="bg-indigo-600 h-16 w-16 rounded-full shadow-2xl border-4 border-[#0f172a] flex items-center justify-center"><i class="fa fa-plus text-white text-2xl"></i></button>
+            <div class="relative -top-8">
+                <button onclick="openModal()" class="bg-indigo-600 h-14 w-14 rounded-full shadow-2xl border-4 border-[#0f172a] flex items-center justify-center"><i class="fa fa-plus text-white text-xl"></i></button>
             </div>
             <button class="text-gray-500 flex flex-col items-center gap-1"><i class="fa fa-cog text-xl"></i><span class="text-[10px] font-bold">Settings</span></button>
         </div>
     </div>
 
-    <div id="transaction-modal" class="hidden fixed inset-0 z-50 modal-overlay flex items-center justify-center p-6">
+    <div id="transaction-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
         <div class="glass-card w-full max-w-md rounded-[32px] p-8 border border-indigo-500/30">
             <h3 id="modal-title" class="text-xl font-bold mb-6 text-indigo-400">Naya Hisab</h3>
             <div class="space-y-4">
-                <input type="text" id="person-name" placeholder="Bande ka naam" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none">
-                <input type="number" id="amount-input" placeholder="Amount" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-5 text-2xl font-bold text-indigo-400 outline-none">
-                <input type="text" id="desc-input" placeholder="Tafseel" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none">
+                <input type="text" id="person-name" placeholder="Naam" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
+                <input type="number" id="amount-input" placeholder="Amount" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
+                <input type="text" id="desc-input" placeholder="Tafseel" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-5 text-white outline-none">
             </div>
             <div class="grid grid-cols-2 gap-4 mt-8">
-                <button onclick="saveEntry('dena')" class="bg-red-500 py-4 rounded-2xl font-bold text-white shadow-lg">Maine Diye</button>
-                <button onclick="saveEntry('lena')" class="bg-green-500 py-4 rounded-2xl font-bold text-white shadow-lg">Maine Liye</button>
+                <button onclick="saveEntry('dena')" class="bg-red-500 py-3 rounded-xl font-bold text-white shadow-lg">Maine Diye</button>
+                <button onclick="saveEntry('lena')" class="bg-green-500 py-3 rounded-xl font-bold text-white shadow-lg">Maine Liye</button>
             </div>
-            <button onclick="closeModal()" class="w-full mt-6 text-gray-500 text-[10px] uppercase font-bold tracking-widest">Wapas Jayein</button>
+            <button onclick="closeModal()" class="w-full mt-4 text-gray-500 text-xs font-bold uppercase">Cancel</button>
         </div>
     </div>
 
@@ -114,23 +106,23 @@
         const db = firebase.database();
         let editKey = null;
 
-        // GOOGLE LOGIN LOGIC
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).catch(err => {
-                console.error(err);
-                document.getElementById('login-error').classList.remove('hidden');
-                document.getElementById('login-error').innerText = "Google login mein masla aa raha hai.";
+                showError("Google login error: " + err.message);
             });
         }
 
-        // EMAIL LOGIN
         function handleLogin() {
-            const email = document.getElementById('login-email').value.trim();
+            const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
-            auth.signInWithEmailAndPassword(email, pass).catch(err => {
-                document.getElementById('login-error').classList.remove('hidden');
-            });
+            auth.signInWithEmailAndPassword(email, pass).catch(err => showError("Ghalat Email ya Password!"));
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('login-error');
+            el.innerText = msg;
+            el.classList.remove('hidden');
         }
 
         function handleLogout() { auth.signOut(); }
@@ -147,23 +139,8 @@
             }
         });
 
-        // MODAL & CRUD
         function openModal(key = null) {
             editKey = key;
-            if (key) {
-                db.ref(`users/${auth.currentUser.uid}/khata/${key}`).once('value', s => {
-                    const d = s.val();
-                    document.getElementById('person-name').value = d.name;
-                    document.getElementById('amount-input').value = Math.abs(d.balance);
-                    document.getElementById('desc-input').value = d.desc;
-                    document.getElementById('modal-title').innerText = "Hisab Edit Karein";
-                });
-            } else {
-                document.getElementById('person-name').value = '';
-                document.getElementById('amount-input').value = '';
-                document.getElementById('desc-input').value = '';
-                document.getElementById('modal-title').innerText = "Naya Hisab";
-            }
             document.getElementById('transaction-modal').classList.remove('hidden');
         }
 
@@ -175,14 +152,9 @@
             const desc = document.getElementById('desc-input').value.trim();
             if (!name || isNaN(amount)) return;
             const finalAmount = (type === 'dena') ? amount : -amount;
-            const entry = { name, balance: finalAmount, desc, timestamp: Date.now() };
-            const path = `users/${auth.currentUser.uid}/khata`;
-            if (editKey) db.ref(`${path}/${editKey}`).update(entry);
-            else db.ref(path).push(entry);
+            db.ref(`users/${auth.currentUser.uid}/khata`).push({ name, balance: finalAmount, desc, timestamp: Date.now() });
             closeModal();
         }
-
-        function deleteEntry(key) { if(confirm("Kya delete kar dein?")) db.ref(`users/${auth.currentUser.uid}/khata/${key}`).remove(); }
 
         function loadData(uid) {
             db.ref(`users/${uid}/khata`).on('value', snapshot => {
@@ -191,27 +163,17 @@
                 let totalL = 0, totalD = 0;
                 snapshot.forEach(child => {
                     const p = child.val();
-                    const key = child.key;
                     const isPos = p.balance >= 0;
                     if (isPos) totalL += p.balance; else totalD += Math.abs(p.balance);
                     list.innerHTML += `
-                        <div class="glass-card p-4 rounded-2xl flex justify-between items-center border border-white/5 shadow-lg">
-                            <div class="flex items-center gap-4">
-                                <div class="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold">${p.name[0].toUpperCase()}</div>
-                                <div><h4 class="font-bold text-sm">${p.name}</h4><p class="text-[9px] text-gray-500 italic">${p.desc || ''}</p></div>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold ${isPos ? 'text-green-400' : 'text-red-400'}">Rs. ${Math.abs(p.balance).toLocaleString()}</p>
-                                <div class="flex gap-2 mt-1">
-                                    <button onclick="openModal('${key}')" class="text-[9px] text-indigo-400"><i class="fa fa-edit"></i></button>
-                                    <button onclick="deleteEntry('${key}')" class="text-[9px] text-red-400"><i class="fa fa-trash"></i></button>
-                                </div>
-                            </div>
+                        <div class="glass-card p-4 rounded-2xl flex justify-between items-center border border-white/5">
+                            <div><h4 class="font-bold text-sm text-white">${p.name}</h4><p class="text-[9px] text-gray-500 italic">${p.desc || ''}</p></div>
+                            <p class="font-bold ${isPos ? 'text-green-400' : 'text-red-400'}">Rs. ${Math.abs(p.balance).toLocaleString()}</p>
                         </div>`;
                 });
-                document.getElementById('grand-total').innerText = `Rs. ${(totalL - totalD).toLocaleString()}`;
-                document.getElementById('total-plus').innerText = `Rs. ${totalL.toLocaleString()}`;
-                document.getElementById('total-minus').innerText = `Rs. ${totalD.toLocaleString()}`;
+                document.getElementById('grand-total').innerText = `Rs. ${totalL - totalD}`;
+                document.getElementById('total-plus').innerText = `Rs. ${totalL}`;
+                document.getElementById('total-minus').innerText = `Rs. ${totalD}`;
             });
         }
     </script>
