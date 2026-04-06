@@ -3,170 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Khata App - Locked Design</title>
+    <title>Len-Den - Secure Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; transition: all 0.5s ease; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .bottom-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); }
-        .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); transition: all 0.3s ease; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); }
+        .hidden { display: none !important; }
+        input::placeholder { color: #64748b; }
     </style>
 </head>
 <body class="pb-32">
 
-    <header class="p-6 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-indigo-400">Digital Khata</h1>
-            <p class="text-gray-400 text-xs uppercase tracking-widest text-[9px]">Aapka Apna Hisab Kitab</p>
-        </div>
-        <div class="h-10 w-10 bg-indigo-500 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <i class="fa fa-user text-white"></i>
-        </div>
-    </header>
-
-    <main class="px-6">
-        <div class="glass-card rounded-3xl p-6 mb-8 relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
-            <p class="text-gray-400 text-sm mb-1 uppercase tracking-tighter text-center">Kul Net Balance</p>
-            <h2 id="grand-total" class="text-4xl font-extrabold mb-6 text-center text-white">Rs. 0</h2>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-green-500/10 p-3 rounded-2xl border border-green-500/20 text-center">
-                    <p class="text-[10px] text-green-400 uppercase font-bold">Lena Hai</p>
-                    <p id="total-plus" class="text-lg font-bold text-green-400">Rs. 0</p>
-                </div>
-                <div class="bg-red-500/10 p-3 rounded-2xl border border-red-500/20 text-center">
-                    <p class="text-[10px] text-red-400 uppercase font-bold">Dena Hai</p>
-                    <p id="total-minus" class="text-lg font-bold text-red-400">Rs. 0</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-4">
-            <h3 class="text-gray-400 text-[10px] font-semibold ml-1 uppercase tracking-widest">Records List</h3>
-            <div id="contacts-list" class="space-y-4">
-                </div>
-        </div>
-    </main>
-
-    <div id="transaction-modal" class="hidden fixed inset-0 z-50 modal-overlay flex items-center justify-center p-6">
-        <div class="glass-card w-full max-w-md rounded-[32px] p-8 border border-indigo-500/30 shadow-2xl">
-            <h3 id="modal-title" class="text-xl font-bold mb-6 text-indigo-400 flex items-center gap-2">
-                <i class="fa fa-pen-to-square"></i> Naya Hisab
-            </h3>
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex items-center justify-center p-6">
+        <div class="glass-card w-full max-w-md rounded-[32px] p-8 text-center border-indigo-500/30 border shadow-2xl">
+            <h1 class="text-4xl font-black text-indigo-400 mb-2 tracking-tighter text-white">Len-Den</h1>
+            <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest font-bold">Aapka Apna Digital Khata</p>
             
             <div class="space-y-4">
-                <input type="text" id="person-name" placeholder="Bande ka naam" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none focus:border-indigo-400">
-                <input type="number" id="amount-input" placeholder="Raqam (Amount)" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-2xl font-bold text-indigo-400 outline-none focus:border-indigo-400">
-                <input type="text" id="desc-input" placeholder="Tafseel (Description)" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none focus:border-indigo-400">
+                <input type="email" id="login-email" placeholder="Email / Username" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none focus:border-indigo-500 transition-all">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none focus:border-indigo-500 transition-all">
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-600/30 active:scale-95 transition-all text-white">Dakhil Hon (Login)</button>
             </div>
-
-            <div class="grid grid-cols-2 gap-4 mt-8">
-                <button onclick="saveEntry('dena')" class="bg-red-500 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">Maine Diye</button>
-                <button onclick="saveEntry('lena')" class="bg-green-500 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">Maine Liye</button>
-            </div>
-            
-            <button onclick="closeModal()" class="w-full mt-6 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors">Cancel</button>
+            <p id="login-error" class="text-red-400 text-[10px] mt-4 hidden uppercase tracking-widest">Ghalat email ya password!</p>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 p-4 bottom-nav flex justify-around items-center rounded-t-[32px] z-40">
-        <button class="text-indigo-400 flex flex-col items-center gap-1"><i class="fa fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
-        <div class="relative -top-10">
-            <button onclick="openModal()" class="bg-indigo-600 h-16 w-16 rounded-full shadow-2xl border-4 border-[#0f172a] flex items-center justify-center active:scale-90 transition-all"><i class="fa fa-plus text-white text-2xl"></i></button>
+    <div id="main-app" class="hidden">
+        <header class="p-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-indigo-400">Len-Den</h1>
+                <p class="text-gray-400 text-[9px] uppercase tracking-widest font-bold">Cloud Sync Active</p>
+            </div>
+            <button onclick="handleLogout()" class="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center border border-white/10 text-red-400 shadow-lg active:scale-90 transition-all">
+                <i class="fa fa-sign-out-alt"></i>
+            </button>
+        </header>
+
+        <main class="px-6">
+            <div class="glass-card rounded-3xl p-6 mb-8 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                <p class="text-gray-400 text-sm mb-1 uppercase tracking-tighter text-center">Kul Net Balance</p>
+                <h2 id="grand-total" class="text-4xl font-extrabold mb-6 text-center text-white font-mono tracking-tighter">Rs. 0</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-green-500/10 p-3 rounded-2xl border border-green-500/20 text-center">
+                        <p class="text-[10px] text-green-400 uppercase font-bold">Lena Hai</p>
+                        <p id="total-plus" class="text-lg font-bold text-green-400">Rs. 0</p>
+                    </div>
+                    <div class="bg-red-500/10 p-3 rounded-2xl border border-red-500/20 text-center">
+                        <p class="text-[10px] text-red-400 uppercase font-bold">Dena Hai</p>
+                        <p id="total-minus" class="text-lg font-bold text-red-400">Rs. 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="contacts-list" class="space-y-4"></div>
+        </main>
+
+        <div id="transaction-modal" class="hidden fixed inset-0 z-50 modal-overlay flex items-center justify-center p-6">
+            <div class="glass-card w-full max-w-md rounded-[32px] p-8 border border-indigo-500/30 shadow-2xl">
+                <h3 id="modal-title" class="text-xl font-bold mb-6 text-indigo-400 flex items-center gap-2">
+                    <i class="fa fa-pen-nib"></i> Naya Hisab
+                </h3>
+                <div class="space-y-4">
+                    <input type="text" id="person-name" placeholder="Bande ka naam" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none focus:border-indigo-500">
+                    <input type="number" id="amount-input" placeholder="Raqam (Amount)" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-2xl font-bold text-indigo-400 outline-none">
+                    <input type="text" id="desc-input" placeholder="Tafseel (Description)" class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl py-4 px-5 text-white outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <button onclick="saveEntry('dena')" class="bg-red-500 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-white">Maine Diye</button>
+                    <button onclick="saveEntry('lena')" class="bg-green-500 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-white">Maine Liye</button>
+                </div>
+                <button onclick="closeModal()" class="w-full mt-6 text-gray-500 text-xs font-bold uppercase tracking-widest">Cancel / Wapas</button>
+            </div>
         </div>
-        <button class="text-gray-500 flex flex-col items-center gap-1"><i class="fa fa-cog text-xl"></i><span class="text-[10px] font-bold">Settings</span></button>
+
+        <div class="fixed bottom-0 left-0 right-0 p-4 bottom-nav flex justify-around items-center rounded-t-[32px] z-40 shadow-2xl">
+            <button class="text-indigo-400 flex flex-col items-center gap-1"><i class="fa fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
+            <div class="relative -top-10">
+                <button onclick="openModal()" class="bg-indigo-600 h-16 w-16 rounded-full shadow-2xl border-4 border-[#0f172a] flex items-center justify-center active:scale-90 transition-all shadow-indigo-600/50">
+                    <i class="fa fa-plus text-white text-2xl"></i>
+                </button>
+            </div>
+            <button class="text-gray-500 flex flex-col items-center gap-1"><i class="fa fa-cog text-xl"></i><span class="text-[10px] font-bold">Settings</span></button>
+        </div>
     </div>
 
     <script>
-        let khataData = [];
-        let editIndex = null;
+        // FIREBASE CONFIGURATION (Zaruri!)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        function openModal(index = null) {
-            editIndex = index;
-            const modal = document.getElementById('transaction-modal');
-            const title = document.getElementById('modal-title');
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        let editKey = null;
+
+        // AUTH HANDLERS
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            if(!email || !pass) return;
             
-            if (index !== null) {
-                title.innerText = "Hisab Edit Karein";
-                const p = khataData[index];
-                document.getElementById('person-name').value = p.name;
-                document.getElementById('amount-input').value = Math.abs(p.balance);
-                document.getElementById('desc-input').value = p.desc || '';
+            auth.signInWithEmailAndPassword(email, pass).catch(err => {
+                document.getElementById('login-error').classList.remove('hidden');
+            });
+        }
+
+        function handleLogout() { auth.signOut(); }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                loadData(user.uid);
             } else {
-                title.innerText = "Naya Hisab Likhein";
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        });
+
+        // MODAL HANDLERS
+        function openModal(key = null) {
+            editKey = key;
+            if (key) {
+                db.ref(`users/${auth.currentUser.uid}/khata/${key}`).once('value', snapshot => {
+                    const data = snapshot.val();
+                    document.getElementById('person-name').value = data.name;
+                    document.getElementById('amount-input').value = Math.abs(data.balance);
+                    document.getElementById('desc-input').value = data.desc;
+                    document.getElementById('modal-title').innerText = "Edit Hisab";
+                });
+            } else {
                 document.getElementById('person-name').value = '';
                 document.getElementById('amount-input').value = '';
                 document.getElementById('desc-input').value = '';
+                document.getElementById('modal-title').innerText = "Naya Hisab";
             }
-            modal.classList.remove('hidden');
+            document.getElementById('transaction-modal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('transaction-modal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('transaction-modal').classList.add('hidden'); }
 
+        // CRUD FUNCTIONS
         function saveEntry(type) {
             const name = document.getElementById('person-name').value.trim();
             const amount = parseFloat(document.getElementById('amount-input').value);
             const desc = document.getElementById('desc-input').value.trim();
-
-            if (!name || isNaN(amount)) return alert("Sahi maloomat bharein");
+            if (!name || isNaN(amount)) return;
 
             const finalAmount = (type === 'dena') ? amount : -amount;
+            const entry = { name, balance: finalAmount, desc, timestamp: Date.now() };
 
-            if (editIndex !== null) {
-                khataData[editIndex] = { name, balance: finalAmount, desc };
-            } else {
-                khataData.push({ name, balance: finalAmount, desc });
-            }
-
+            const path = `users/${auth.currentUser.uid}/khata`;
+            if (editKey) db.ref(`${path}/${editKey}`).update(entry);
+            else db.ref(path).push(entry);
+            
             closeModal();
-            updateUI();
         }
 
-        function deleteEntry(index) {
-            if (confirm("Kya aap ye record delete karna chahte hain?")) {
-                khataData.splice(index, 1);
-                updateUI();
+        function deleteEntry(key) { 
+            if(confirm("Kya aap waqai ye delete karna chahte hain?")) {
+                db.ref(`users/${auth.currentUser.uid}/khata/${key}`).remove();
             }
         }
 
-        function updateUI() {
-            const container = document.getElementById('contacts-list');
-            container.innerHTML = '';
-            let totalL = 0, totalD = 0;
+        // LIVE DATA LOADER
+        function loadData(uid) {
+            db.ref(`users/${uid}/khata`).on('value', snapshot => {
+                const container = document.getElementById('contacts-list');
+                container.innerHTML = '';
+                let totalL = 0, totalD = 0;
 
-            khataData.forEach((p, i) => {
-                const isPos = p.balance >= 0;
-                if (isPos) totalL += p.balance; else totalD += Math.abs(p.balance);
+                snapshot.forEach(child => {
+                    const p = child.val();
+                    const key = child.key;
+                    const isPos = p.balance >= 0;
+                    if (isPos) totalL += p.balance; else totalD += Math.abs(p.balance);
 
-                container.innerHTML += `
-                    <div class="glass-card p-4 rounded-2xl border border-white/5 shadow-xl relative group">
-                        <div class="flex justify-between items-center">
+                    container.innerHTML += `
+                        <div class="glass-card p-4 rounded-2xl flex justify-between items-center shadow-xl border border-white/5 transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-lg">${p.name[0].toUpperCase()}</div>
+                                <div class="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold shadow-inner">${p.name[0].toUpperCase()}</div>
                                 <div>
-                                    <h4 class="font-bold text-white text-sm">${p.name}</h4>
+                                    <h4 class="font-bold text-sm text-white">${p.name}</h4>
                                     <p class="text-[10px] text-gray-500 italic">${p.desc || 'No description'}</p>
                                 </div>
                             </div>
-                            <div class="text-right flex flex-col items-end">
+                            <div class="text-right">
                                 <p class="font-bold ${isPos ? 'text-green-400' : 'text-red-400'}">Rs. ${Math.abs(p.balance).toLocaleString()}</p>
                                 <div class="flex gap-2 mt-2">
-                                    <button onclick="openModal(${i})" class="text-[10px] bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-lg border border-indigo-500/30 hover:bg-indigo-500 hover:text-white transition-all"><i class="fa fa-edit"></i></button>
-                                    <button onclick="deleteEntry(${i})" class="text-[10px] bg-red-500/20 text-red-400 px-3 py-1 rounded-lg border border-red-500/30 hover:bg-red-500 hover:text-white transition-all"><i class="fa fa-trash"></i></button>
+                                    <button onclick="openModal('${key}')" class="text-[10px] bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-lg border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all"><i class="fa fa-edit"></i></button>
+                                    <button onclick="deleteEntry('${key}')" class="text-[10px] bg-red-500/10 text-red-400 px-3 py-1 rounded-lg border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><i class="fa fa-trash"></i></button>
                                 </div>
                             </div>
-                        </div>
-                    </div>`;
-            });
+                        </div>`;
+                });
 
-            document.getElementById('grand-total').innerText = `Rs. ${(totalL - totalD).toLocaleString()}`;
-            document.getElementById('total-plus').innerText = `Rs. ${totalL.toLocaleString()}`;
-            document.getElementById('total-minus').innerText = `Rs. ${totalD.toLocaleString()}`;
+                document.getElementById('grand-total').innerText = `Rs. ${(totalL - totalD).toLocaleString()}`;
+                document.getElementById('total-plus').innerText = `Rs. ${totalL.toLocaleString()}`;
+                document.getElementById('total-minus').innerText = `Rs. ${totalD.toLocaleString()}`;
+            });
         }
     </script>
 </body>
